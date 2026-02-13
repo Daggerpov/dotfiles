@@ -156,10 +156,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -175,6 +175,13 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+local opts = { noremap = true, silent = true }
+vim.keymap.set('i', '<S-Tab>', '<C-\\><C-N><<<C-\\><C-N>^i')
+vim.keymap.set('n', '<Tab>', '>>', opts)
+vim.keymap.set('n', '<S-Tab>', '<<', opts)
+vim.keymap.set('v', '<Tab>', '>gv', opts)
+vim.keymap.set('v', '<S-Tab>', '<gv', opts)
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -217,75 +224,6 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  --NOTE: from Daniel, these first ones are my own:
-  --
-  {
-    'iamcco/markdown-preview.nvim',
-    build = 'cd app && npm install',
-    ft = 'markdown',
-    config = function()
-      vim.g.mkdp_auto_start = 0 -- don't auto open preview
-      vim.g.mkdp_auto_close = 1 -- close preview when leaving buffer
-      vim.g.mkdp_refresh_slow = 0 -- faster refresh
-      vim.g.mkdp_command_for_global = 0
-    end,
-  },
-
-  {
-    'folke/noice.nvim',
-    event = 'VeryLazy',
-    dependencies = {
-      'MunifTanjim/nui.nvim',
-      'folke/snacks.nvim',
-    },
-    config = function()
-      require('noice').setup {
-        cmdline = {
-          enabled = true,
-          view = 'cmdline_popup', -- use popup for cmdline
-          format = {
-            cmdline = { pattern = '^:', icon = ':', lang = 'vim' },
-            search_down = { kind = 'search', pattern = '^/', icon = '/', lang = 'regex' },
-            search_up = { kind = 'search', pattern = '^%?', icon = '?', lang = 'regex' },
-            -- disable other formats
-            expression = false,
-            filter = false,
-            lua = false,
-            help = false,
-            input = false,
-          },
-        },
-        messages = {
-          enabled = false, -- disable message UI
-        },
-        popupmenu = {
-          enabled = true, -- KEEP THIS ENABLED for completion menu
-          backend = 'nui', -- use nui for completion
-        },
-        lsp = {
-          override = {
-            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-            ['vim.lsp.util.stylize_markdown'] = true,
-            ['cmp.entry.get_documentation'] = true,
-          },
-        },
-        views = {
-          cmdline_popup = {
-            position = { row = '40%', col = '50%' },
-            size = { width = 60, height = 'auto' },
-            border = { style = 'rounded' },
-          },
-        },
-        presets = {
-          bottom_search = false,
-          command_palette = false,
-          long_message_to_split = false,
-          inc_rename = false,
-          lsp_doc_border = false,
-        },
-      }
-    end,
-  },
 
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
@@ -390,6 +328,97 @@ require('lazy').setup({
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
+  },
+
+  --NOTE: from Daniel, these first ones are my own:
+  --
+  {
+    'iamcco/markdown-preview.nvim',
+    build = 'cd app && npm install',
+    ft = 'markdown',
+    config = function()
+      vim.g.mkdp_auto_start = 0 -- don't auto open preview
+      vim.g.mkdp_auto_close = 1 -- close preview when leaving buffer
+      vim.g.mkdp_refresh_slow = 0 -- faster refresh
+      vim.g.mkdp_command_for_global = 0
+    end,
+  },
+
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'folke/snacks.nvim',
+    },
+    config = function()
+      require('noice').setup {
+        cmdline = {
+          enabled = true,
+          view = 'cmdline_popup', -- use popup for cmdline
+          format = {
+            cmdline = { pattern = '^:', icon = ':', lang = 'vim' },
+            search_down = { kind = 'search', pattern = '^/', icon = '/', lang = 'regex' },
+            search_up = { kind = 'search', pattern = '^%?', icon = '?', lang = 'regex' },
+            -- disable other formats
+            expression = false,
+            filter = false,
+            lua = false,
+            help = false,
+            input = false,
+          },
+        },
+        messages = {
+          enabled = false, -- disable message UI
+        },
+        popupmenu = {
+          enabled = true, -- KEEP THIS ENABLED for completion menu
+          backend = 'nui', -- use nui for completion
+        },
+        lsp = {
+          override = {
+            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+            ['vim.lsp.util.stylize_markdown'] = true,
+            ['cmp.entry.get_documentation'] = true,
+          },
+        },
+        views = {
+          cmdline_popup = {
+            position = { row = '40%', col = '50%' },
+            size = { width = 60, height = 'auto' },
+            border = { style = 'rounded' },
+          },
+        },
+        presets = {
+          bottom_search = false,
+          command_palette = false,
+          long_message_to_split = false,
+          inc_rename = false,
+          lsp_doc_border = false,
+        },
+      }
+    end,
   },
 
   -- NOTE: Plugins can specify dependencies.
