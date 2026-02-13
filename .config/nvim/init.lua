@@ -822,20 +822,26 @@ require('lazy').setup({
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      -- Configure LSP servers using the Neovim 0.11+ built-in API (vim.lsp.config / vim.lsp.enable).
+      -- This replaces the deprecated require('lspconfig')[name].setup() approach.
+
+      -- Apply blink.cmp capabilities to ALL servers
+      vim.lsp.config('*', {
+        capabilities = capabilities,
+      })
+
+      -- Apply per-server configuration
+      for server_name, server_config in pairs(servers) do
+        vim.lsp.config(server_name, server_config)
+      end
+
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
+        -- Let mason-lspconfig auto-enable installed servers via vim.lsp.enable()
+        automatic_enable = true,
       }
+
+      -- Also enable servers that may not be installed via Mason (e.g. system-installed)
+      vim.lsp.enable(vim.tbl_keys(servers))
     end,
   },
 
@@ -936,12 +942,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
         opts = {},
       },
@@ -1084,10 +1090,12 @@ require('lazy').setup({
       'ramojus/mellifluous.nvim',
       enabled = true,
       name = 'mellifluous',
+      priority = 1000, -- Load before other start plugins
       config = function()
         require('mellifluous').setup {
           neutral = false,
         }
+        vim.cmd.colorscheme 'mellifluous'
       end,
     },
   },
@@ -1135,45 +1143,57 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.config', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
+    -- NOTE: nvim-treesitter for Neovim 0.11+ changed its API.
+    -- The old `opts` approach (ensure_installed, highlight, indent) no longer works.
+    -- Highlighting is now built into Neovim and auto-starts when parsers are available.
+    config = function()
+      local ensure_installed = {
         'bash',
         'c',
+        'cpp',
+        'css',
         'diff',
+        'go',
+        'gomod',
+        'gosum',
         'html',
+        'java',
+        'javascript',
+        'json',
         'lua',
         'luadoc',
         'markdown',
         'markdown_inline',
+        'python',
         'query',
         'regex',
+        'rust',
+        'swift',
+        'toml',
+        'tsx',
+        'typescript',
         'vim',
         'vimdoc',
-        'java',
-        'python',
-        'go',
-        'swift',
-        'rust',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+        'yaml',
+      }
+
+      -- Install any missing parsers (async, won't block startup)
+      local installed = require('nvim-treesitter').get_installed()
+      local to_install = vim.tbl_filter(function(lang)
+        return not vim.list_contains(installed, lang)
+      end, ensure_installed)
+      if #to_install > 0 then
+        vim.cmd('TSInstall ' .. table.concat(to_install, ' '))
+      end
+
+      -- Ensure treesitter highlighting is active for all supported filetypes
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('treesitter-start', { clear = true }),
+        callback = function(ev)
+          pcall(vim.treesitter.start, ev.buf)
+        end,
+      })
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
