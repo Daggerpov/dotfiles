@@ -59,6 +59,11 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
+-- Disable unused providers to suppress checkhealth warnings
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -231,6 +236,7 @@ require('lazy').setup({
     event = 'VeryLazy',
     dependencies = {
       'MunifTanjim/nui.nvim',
+      'folke/snacks.nvim',
     },
     config = function()
       require('noice').setup {
@@ -258,9 +264,9 @@ require('lazy').setup({
         },
         lsp = {
           override = {
-            ['vim.lsp.util.convert_input_to_markdown_lines'] = false,
-            ['vim.lsp.util.stylize_markdown'] = false,
-            ['cmp.entry.get_documentation'] = false,
+            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+            ['vim.lsp.util.stylize_markdown'] = true,
+            ['cmp.entry.get_documentation'] = true,
           },
         },
         views = {
@@ -1000,7 +1006,7 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
@@ -1142,6 +1148,7 @@ require('lazy').setup({
         'markdown',
         'markdown_inline',
         'query',
+        'regex',
         'vim',
         'vimdoc',
         'java',
@@ -1196,6 +1203,9 @@ require('lazy').setup({
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
 }, {
+  rocks = {
+    enabled = false,
+  },
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
