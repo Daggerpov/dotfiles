@@ -121,8 +121,7 @@ vim.o.splitbelow = true
 --   See `:help lua-options`
 --   and `:help lua-options-guide`
 vim.o.list = true
--- Show tabs as spaces so they don't display as ^I (file still uses real tabs)
-vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
+vim.opt.listchars = { trail = "·", nbsp = "␣" }
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = "split"
@@ -178,8 +177,7 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
 local opts = { noremap = true, silent = true }
--- Shift-Tab in insert: dedent line then return to insert (no literal ^i)
-vim.keymap.set("i", "<S-Tab>", "<C-\\><C-N><<gi", opts)
+vim.keymap.set("i", "<S-Tab>", "<C-\\><C-N><<<C-\\><C-N>^i")
 vim.keymap.set("n", "<Tab>", ">>", opts)
 vim.keymap.set("n", "<S-Tab>", "<<", opts)
 vim.keymap.set("v", "<Tab>", ">gv", opts)
@@ -375,40 +373,13 @@ require("lazy").setup({
 			"rcarriga/nvim-notify",
 		},
 		opts = {
-			cmdline = {
-				enabled = true,
-				view = "cmdline_popup",
-				format = {
-					cmdline = { pattern = "^:", icon = ":", lang = "vim" },
-					search_down = { kind = "search", pattern = "^/", icon = "/", lang = "regex" },
-					search_up = { kind = "search", pattern = "^%?", icon = "?", lang = "regex" },
-					expression = false,
-					filter = false,
-					lua = false,
-					help = false,
-					input = false,
-				},
-			},
+			cmdline = { enabled = false },
 			messages = { enabled = false },
-			popupmenu = { enabled = true, backend = "nui" },
+			popupmenu = { enabled = false },
 			lsp = {
 				progress = { enabled = false },
 				hover = { enabled = false },
 				signature = { enabled = false },
-			},
-			views = {
-				cmdline_popup = {
-					position = { row = "40%", col = "50%" },
-					size = { width = 60, height = "auto" },
-					border = { style = "rounded" },
-				},
-			},
-			presets = {
-				bottom_search = false,
-				command_palette = false,
-				long_message_to_split = false,
-				inc_rename = false,
-				lsp_doc_border = false,
 			},
 		},
 	},
