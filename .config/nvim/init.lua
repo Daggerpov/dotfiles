@@ -370,55 +370,18 @@ require('lazy').setup({
     event = 'VeryLazy',
     dependencies = {
       'MunifTanjim/nui.nvim',
-      'folke/snacks.nvim',
+      'rcarriga/nvim-notify',
     },
-    config = function()
-      require('noice').setup {
-        cmdline = {
-          enabled = true,
-          view = 'cmdline_popup', -- use popup for cmdline
-          format = {
-            cmdline = { pattern = '^:', icon = ':', lang = 'vim' },
-            search_down = { kind = 'search', pattern = '^/', icon = '/', lang = 'regex' },
-            search_up = { kind = 'search', pattern = '^%?', icon = '?', lang = 'regex' },
-            -- disable other formats
-            expression = false,
-            filter = false,
-            lua = false,
-            help = false,
-            input = false,
-          },
-        },
-        messages = {
-          enabled = false, -- disable message UI
-        },
-        popupmenu = {
-          enabled = true, -- KEEP THIS ENABLED for completion menu
-          backend = 'nui', -- use nui for completion
-        },
-        lsp = {
-          override = {
-            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-            ['vim.lsp.util.stylize_markdown'] = true,
-            ['cmp.entry.get_documentation'] = true,
-          },
-        },
-        views = {
-          cmdline_popup = {
-            position = { row = '40%', col = '50%' },
-            size = { width = 60, height = 'auto' },
-            border = { style = 'rounded' },
-          },
-        },
-        presets = {
-          bottom_search = false,
-          command_palette = false,
-          long_message_to_split = false,
-          inc_rename = false,
-          lsp_doc_border = false,
-        },
-      }
-    end,
+    opts = {
+      cmdline = { enabled = false },
+      messages = { enabled = false },
+      popupmenu = { enabled = false },
+      lsp = {
+        progress = { enabled = false },
+        hover = { enabled = false },
+        signature = { enabled = false },
+      },
+    },
   },
 
   -- NOTE: Plugins can specify dependencies.
