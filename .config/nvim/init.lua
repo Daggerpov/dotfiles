@@ -808,7 +808,6 @@ require('lazy').setup({
         'prettier',
         'goimports',
         'black',
-        'isort',
         'google-java-format',
         'asmfmt',
       })
@@ -889,7 +888,7 @@ require('lazy').setup({
         rust = { 'rustfmt' },
 
         -- Python
-        python = { 'isort', 'black' },
+        python = { 'black' },
 
         -- Lua
         lua = { 'stylua' },
