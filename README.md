@@ -15,5 +15,4 @@ ln -sf ~/dotfiles/.config/nvim ~/.config/nvim
 ## Installations:
 
 - homebrew
-`brew install tmux`
-`brew install lazygit`
+- `brew install tmux lazygit zsh neovim git`
