@@ -6,8 +6,11 @@
 
 `ln -sf ~/dotfiles/.zshrc ~/.zshrc && ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh && ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf && ln -sf ~/dotfiles/.config/nvim ~/.config/nvim`
 
-## Amazon Linux pre-reqs:
+## Installations:
 
+### Homebrew
+
+On mac it's trivial; on Amazon Linux, these commands are required:
 ```
 sudo yum groupinstall 'Development Tools'
 sudo yum install curl file git
@@ -15,7 +18,5 @@ sudo yum install libxcrypt-compat
 ```
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 
-## Installations:
 
-- homebrew
-- `brew install tmux lazygit zsh neovim git`
+`brew install tmux lazygit zsh neovim git`
