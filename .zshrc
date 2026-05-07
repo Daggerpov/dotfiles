@@ -83,7 +83,7 @@ plugins=(
 	z
 )
 
-source $ZSH/oh-my-zsh.sh
+# source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
@@ -119,15 +119,6 @@ alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# IMPORTANT FROM DANIEL: THIS IS FROM OLD config in 
-# ~/.zshrc.pre-oh-my-zsh
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-
-PATH=$(pyenv root)/shims:$PATH
-export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/daggerpov/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/daggerpov/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
@@ -156,3 +147,10 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 bindkey -v
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true
+
