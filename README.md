@@ -19,4 +19,4 @@ sudo yum install libxcrypt-compat
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 
 
-`brew install tmux lazygit zsh neovim git`
+`brew install tmux lazygit zsh neovim git pyenv`
