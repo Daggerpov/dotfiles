@@ -1,3 +1,7 @@
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -119,13 +123,6 @@ alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# IMPORTANT FROM DANIEL: THIS IS FROM OLD config in 
-# ~/.zshrc.pre-oh-my-zsh
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-
-PATH=$(pyenv root)/shims:$PATH
 export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
 # The next line updates PATH for the Google Cloud SDK.
@@ -159,3 +156,19 @@ bindkey -v
 
 alias update-zen='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo plutil -replace DisableAppUpdate -bool false /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 alias update-zen-manual='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo vim /Library/Managed\ Preferences/app.zen-browser.zen.plist'
+
+export PATH=$HOME/.toolbox/bin:$PATH
+eval "$(/opt/homebrew/bin/brew shellenv)"
+# Set up mise for runtime management
+eval "$(mise activate zsh)"
+source /Users/dagapov/.brazil_completion/zsh_completion
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-26.jdk/Contents/Home"
+
+# Added by AIM CLI
+export PATH="$HOME/.aim/mcp-servers:$PATH"
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
