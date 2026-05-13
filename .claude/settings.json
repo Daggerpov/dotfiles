@@ -1,0 +1,23 @@
+{
+  "enabledPlugins": {
+    "AmazonBuilderCoreAIAgents-pipeline-assistant@aim": true
+  },
+  "env": {
+    "AWS_PROFILE": "claude-code-DO-NOT-DELETE",
+    "AWS_REGION": "us-west-2"
+  },
+  "extraKnownMarketplaces": {
+    "aim": {
+      "source": {
+        "path": "/Users/dagapov/.aim/cc-plugins",
+        "source": "directory"
+      }
+    }
+  },
+  "model": "opus",
+  "statusLine": {
+    "command": "sh ~/.claude/statusline-command.sh",
+    "type": "command"
+  },
+  "theme": "custom:nightforge"
+}

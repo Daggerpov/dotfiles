@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "mcp__builder-mcp__*",
+      "Bash(cp /Users/dagapov/.claude/themes/nightforge.json /Users/dagapov/dotfiles/.claude/themes/nightforge.json)",
+      "Bash(cp /Users/dagapov/.claude/settings.json /Users/dagapov/dotfiles/.claude/settings.json)",
+      "Bash(cp /Users/dagapov/.claude/settings.local.json /Users/dagapov/dotfiles/.claude/settings.local.json)",
+      "Bash(cp /Users/dagapov/.claude/statusline-command.sh /Users/dagapov/dotfiles/.claude/statusline-command.sh)"
+    ]
+  }
+}

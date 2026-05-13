@@ -4,7 +4,7 @@
 
 ## Symlinks
 
-`ln -sf ~/dotfiles/.zshrc ~/.zshrc && ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh && ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf && ln -sf ~/dotfiles/.config/nvim ~/.config/nvim`
+`ln -sf ~/dotfiles/.zshrc ~/.zshrc && ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh && ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf && ln -sf ~/dotfiles/.config/nvim ~/.config/nvim && ln -sf ~/dotfiles/.claude/themes ~/.claude/themes && ln -sf ~/dotfiles/.claude/settings.json ~/.claude/settings.json && ln -sf ~/dotfiles/.claude/settings.local.json ~/.claude/settings.local.json && ln -sf ~/dotfiles/.claude/statusline-command.sh ~/.claude/statusline-command.sh`
 
 ## Installations:
 
