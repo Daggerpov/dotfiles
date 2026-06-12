@@ -2,6 +2,16 @@
 # Kiro CLI pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 
+# Linux-only: linuxbrew + zoxide (z) for Amazon dev desktops
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  fi
+  if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh --cmd z)"
+  fi
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -124,7 +134,9 @@ alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
+if command -v brew >/dev/null 2>&1 && [ -s "$(brew --prefix nvm 2>/dev/null)/nvm.sh" ]; then
+  source "$(brew --prefix nvm)/nvm.sh"
+fi
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/daggerpov/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/daggerpov/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
@@ -158,11 +170,16 @@ alias update-zen='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.ze
 alias update-zen-manual='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo vim /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 
 export PATH=$HOME/.toolbox/bin:$PATH
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 # Set up mise for runtime management
-eval "$(mise activate zsh)"
-source /Users/dagapov/.brazil_completion/zsh_completion
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-26.jdk/Contents/Home"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+[ -f /Users/dagapov/.brazil_completion/zsh_completion ] && source /Users/dagapov/.brazil_completion/zsh_completion
+[ -f "$HOME/.brazil_completion/zsh_completion" ] && source "$HOME/.brazil_completion/zsh_completion"
+[[ "$OSTYPE" == "darwin"* ]] && export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-26.jdk/Contents/Home"
 
 # Added by AIM CLI
 export PATH="$HOME/.aim/mcp-servers:$PATH"
@@ -172,3 +189,12 @@ export PATH="$HOME/.aim/mcp-servers:$PATH"
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+# MeshClaw
+export PATH="$HOME/.local/bin:$PATH"
+export MESHCLAW_PROJECT_DIR="/home/dagapov/.meshclaw-app"
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true
+

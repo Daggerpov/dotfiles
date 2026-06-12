@@ -1,0 +1,6 @@
+# Built neovim runtime/install — not dotfiles (nvim *config* lives in .config/nvim/)
+neovim/
+
+# OS / editor noise
+.DS_Store
+*.swp
