@@ -198,3 +198,6 @@ export MESHCLAW_PROJECT_DIR="/home/dagapov/.meshclaw-app"
 
 export AWS_EC2_METADATA_DISABLED=true
 
+
+# Added by AIM CLI
+export PATH="/local/home/dagapov/.aim/mcp-servers:$PATH"
