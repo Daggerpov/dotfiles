@@ -169,33 +169,73 @@ bindkey -v
 alias update-zen='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo plutil -replace DisableAppUpdate -bool false /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 alias update-zen-manual='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo vim /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 
-# --- KiRoom: start (or attach to) the local server ----------------------------
-# `kiroom`        -> start the server if it's not already up; print the laptop
-#                    ssh -L tunnel line + URL either way. Idempotent — won't
-#                    spawn a second server that'd collide on :3000.
-# `kiroom -f`     -> force a fresh start (kill any running server first).
-# `kiroom stop`   -> stop the running server.
+# --- KiRoom: one command from anywhere ---------------------------------------
+# Host-aware. Same `kiroom` works on the laptop and on the dev desktop.
+#
+#   kiroom            laptop: ssh to the dev desktop, ensure the server is up,
+#                     hold the :3000 tunnel open, and open the browser once it
+#                     responds. dev desktop: ensure the server is up locally.
+#   kiroom stop       stop the server (laptop: over ssh; dev desktop: locally).
+#   kiroom restart    restart the server.
+#   kiroom status     is it serving on :3000?
+#   kiroom logs       tail the server log (dev-desktop-side).
+#   kiroom attach     attach to the server's tmux session (dev-desktop-side).
+#
+# The server runs in a detached tmux session on the dev desktop, so it survives
+# SSH disconnects.
+#
+# Host resolution (laptop side), in order: $KIROOM_DEV_HOST, then a `dev` Host
+# in ~/.ssh/config, then ~/.config/kiroom/host. That host file is written by the
+# dev desktop on every `kiroom up` and synced by desktop-sync — so the laptop
+# self-heals across desktop migrations. The dev-desktop FQDN is deliberately
+# NOT hardcoded here, since this file is a PUBLIC dotfiles repo.
 kiroom() {
-  local pkg="$HOME/workplace/KiRoom/src/KiRoom"
-  local tunnel="ssh -L 3000:localhost:3000 ${USER}@$(hostname -f 2>/dev/null)"
-  local running; running="$(pgrep -f 'kiroom-server/index.js' 2>/dev/null | head -1)"
-  [ -d "$pkg" ] || { echo "kiroom: $pkg not found"; return 1; }
+  local remote="\$HOME/bin/kiroom-remote.sh"   # expanded on the dev desktop
 
-  if [ "$1" = "stop" ]; then
-    [ -n "$running" ] && { kill "$running" && echo "kiroom: stopped (pid $running)"; } || echo "kiroom: not running"
-    return 0
+  # --- dev desktop (Linux): drive the server directly via the helper ---
+  if [[ "$OSTYPE" != darwin* ]]; then
+    "$HOME/bin/kiroom-remote.sh" "${1:-up}"
+    return $?
   fi
-  if [ "$1" = "-f" ] && [ -n "$running" ]; then
-    echo "kiroom: restarting (killing pid $running)…"; kill "$running"; sleep 1; running=""
+
+  # --- laptop (macOS): operate over ssh ---
+  local host=""
+  if [[ -n "${KIROOM_DEV_HOST:-}" ]]; then
+    host="$KIROOM_DEV_HOST"
+  elif [[ -f "$HOME/.ssh/config" ]] && grep -qiE "^[[:space:]]*Host[[:space:]].*\bdev\b" "$HOME/.ssh/config"; then
+    host="dev"   # a `dev` Host in ~/.ssh/config takes precedence over the host file
+  elif [[ -r "$HOME/.config/kiroom/host" ]]; then
+    host="$(< "$HOME/.config/kiroom/host")"
   fi
-  if [ -n "$running" ]; then
-    echo "kiroom: already running (pid $running) → http://localhost:3000"
-    echo "  laptop tunnel:  $tunnel"
-    return 0
+  if [[ -z "$host" ]]; then
+    echo "kiroom: no dev-desktop host configured. Set one of:"
+    echo "  • export KIROOM_DEV_HOST=<dev-desktop-fqdn>"
+    echo "  • a 'Host dev' block in ~/.ssh/config"
+    echo "  • echo <fqdn> > ~/.config/kiroom/host"
+    return 1
   fi
-  echo "kiroom: starting server (builds on first run; ~1-2 min)…"
-  echo "  once up, from your laptop:  $tunnel"
-  ( cd "$pkg" && brazil-build server )
+
+  case "${1:-up}" in
+    stop|restart|status|logs|attach)
+      exec ssh -t "$host" "$remote ${1}"
+      ;;
+    up|"")
+      # Open the browser once :3000 is reachable through the tunnel, in the
+      # background; meanwhile hold the -L tunnel in the foreground (Ctrl-C ends
+      # it). The remote helper builds/starts the server and blocks until it's up.
+      ( for _ in $(seq 1 180); do
+          curl -fsS -o /dev/null --max-time 2 http://localhost:3000/ 2>/dev/null \
+            && { open http://localhost:3000; break; }
+          sleep 2
+        done ) &
+      echo "kiroom: connecting to $host — server will build if needed (~1-2 min); browser opens when ready. Ctrl-C closes the tunnel."
+      exec ssh -t -L 3000:localhost:3000 "$host" \
+        "$remote up && printf '\033[1;35m[kiroom]\033[0m tunnel open → http://localhost:3000 (Ctrl-C to close)\n' && exec sleep infinity"
+      ;;
+    *)
+      echo "kiroom: unknown command '$1' (use: up|stop|restart|status|logs|attach)"; return 2
+      ;;
+  esac
 }
 
 export PATH=$HOME/.toolbox/bin:$PATH

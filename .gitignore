@@ -4,3 +4,6 @@ neovim/
 # OS / editor noise
 .DS_Store
 *.swp
+
+# Machine-local KiRoom dev-desktop host (written by ~/bin/kiroom-remote.sh; not for the public repo)
+.config/kiroom/
