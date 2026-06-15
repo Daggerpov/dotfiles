@@ -169,6 +169,35 @@ bindkey -v
 alias update-zen='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo plutil -replace DisableAppUpdate -bool false /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 alias update-zen-manual='sudo plutil -convert xml1 /Library/Managed\ Preferences/app.zen-browser.zen.plist && sudo vim /Library/Managed\ Preferences/app.zen-browser.zen.plist'
 
+# --- KiRoom: start (or attach to) the local server ----------------------------
+# `kiroom`        -> start the server if it's not already up; print the laptop
+#                    ssh -L tunnel line + URL either way. Idempotent — won't
+#                    spawn a second server that'd collide on :3000.
+# `kiroom -f`     -> force a fresh start (kill any running server first).
+# `kiroom stop`   -> stop the running server.
+kiroom() {
+  local pkg="$HOME/workplace/KiRoom/src/KiRoom"
+  local tunnel="ssh -L 3000:localhost:3000 ${USER}@$(hostname -f 2>/dev/null)"
+  local running; running="$(pgrep -f 'kiroom-server/index.js' 2>/dev/null | head -1)"
+  [ -d "$pkg" ] || { echo "kiroom: $pkg not found"; return 1; }
+
+  if [ "$1" = "stop" ]; then
+    [ -n "$running" ] && { kill "$running" && echo "kiroom: stopped (pid $running)"; } || echo "kiroom: not running"
+    return 0
+  fi
+  if [ "$1" = "-f" ] && [ -n "$running" ]; then
+    echo "kiroom: restarting (killing pid $running)…"; kill "$running"; sleep 1; running=""
+  fi
+  if [ -n "$running" ]; then
+    echo "kiroom: already running (pid $running) → http://localhost:3000"
+    echo "  laptop tunnel:  $tunnel"
+    return 0
+  fi
+  echo "kiroom: starting server (builds on first run; ~1-2 min)…"
+  echo "  once up, from your laptop:  $tunnel"
+  ( cd "$pkg" && brazil-build server )
+}
+
 export PATH=$HOME/.toolbox/bin:$PATH
 if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
